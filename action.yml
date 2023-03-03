@@ -1,13 +1,14 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'ParseTag'
+description: 'Parse a tag'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
-    required: true
-    default: '1000'
+  tag:
+    description: 'The tag. Defaults to github.GITHUB_REF.'
+    required: false
 outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  project-name:
+    description: 'The name of the project.'
+  project-version:
+    description: 'The version of the project.'
 runs:
   using: 'node16'
   main: 'dist/index.js'
