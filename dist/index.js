@@ -2688,19 +2688,30 @@ exports.default = _default;
 
 /***/ }),
 
-/***/ 258:
+/***/ 382:
 /***/ ((module) => {
 
-let wait = function (milliseconds) {
-  return new Promise((resolve) => {
-    if (typeof milliseconds !== 'number') {
-      throw new Error('milliseconds not a number');
+function parseTag(tag) {
+    const refsTags = 'refs/tags/';
+    if (tag.startsWith(refsTags)) {
+        tag = tag.substring(refsTags.length);
     }
-    setTimeout(() => resolve("done!"), milliseconds)
-  });
-};
+    const slashIdx = tag.indexOf('/');
+    if (slashIdx === -1) {
+        throw new Error(`no '/' in tag`);
+    }
+    const projectName = tag.substring(0, slashIdx);
+    const projectVersion = tag.substring(slashIdx + 1);
+    if (!projectName.length) {
+        throw new Error(`empty project name`)
+    }
+    if (!projectVersion.length) {
+        throw new Error(`empty project version`)
+    }
+    return {projectName, projectVersion};
+}
 
-module.exports = wait;
+module.exports = {parseTag};
 
 
 /***/ }),
@@ -2835,26 +2846,16 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(186);
-const wait = __nccwpck_require__(258);
+const {parseTag} = __nccwpck_require__(382);
 
-
-// most @actions toolkit packages have async methods
-async function run() {
-  try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
-
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
-
-    core.setOutput('time', new Date().toTimeString());
-  } catch (error) {
+try {
+    const tag = core.getInput('tag');
+    const {projectName, projectVersion} = parseTag(tag);
+    core.setOutput('project-name', projectName);
+    core.setOutput('project-version', projectVersion);
+} catch (error) {
     core.setFailed(error.message);
-  }
 }
-
-run();
 
 })();
 
