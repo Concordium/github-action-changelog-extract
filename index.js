@@ -1,11 +1,14 @@
 const core = require('@actions/core');
-const {parseTag} = require("./parse");
+const {cleanTag, parseTag} = require("./lib");
 
 try {
-    const tag = core.getInput('tag');
+    const inputTag = core.getInput('tag');
+    const {ref, tag} = cleanTag(inputTag);
     const {projectName, projectVersion} = parseTag(tag);
+    core.setOutput('tag-name', tag);
+    core.setOutput('tag-ref', ref)
     core.setOutput('project-name', projectName);
     core.setOutput('project-version', projectVersion);
 } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(`invalid tag: ${error.message}`);
 }

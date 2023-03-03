@@ -1,8 +1,15 @@
-function parseTag(tag) {
+function cleanTag(tag) {
     const refsTags = 'refs/tags/';
     if (tag.startsWith(refsTags)) {
         tag = tag.substring(refsTags.length);
+        if (!tag.length) {
+            throw new Error('empty tag name');
+        }
     }
+    return {ref: refsTags+tag, tag};
+}
+
+function parseTag(tag) {
     const slashIdx = tag.indexOf('/');
     if (slashIdx === -1) {
         throw new Error(`no '/' in tag`);
@@ -18,4 +25,4 @@ function parseTag(tag) {
     return {projectName, projectVersion};
 }
 
-module.exports = {parseTag};
+module.exports = {cleanTag, parseTag};

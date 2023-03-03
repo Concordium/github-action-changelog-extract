@@ -1,6 +1,41 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 909:
+/***/ ((module) => {
+
+function cleanTag(tag) {
+    const refsTags = 'refs/tags/';
+    if (tag.startsWith(refsTags)) {
+        tag = tag.substring(refsTags.length);
+        if (!tag.length) {
+            throw new Error('empty tag name');
+        }
+    }
+    return {ref: refsTags+tag, tag};
+}
+
+function parseTag(tag) {
+    const slashIdx = tag.indexOf('/');
+    if (slashIdx === -1) {
+        throw new Error(`no '/' in tag`);
+    }
+    const projectName = tag.substring(0, slashIdx);
+    const projectVersion = tag.substring(slashIdx + 1);
+    if (!projectName.length) {
+        throw new Error(`empty project name`)
+    }
+    if (!projectVersion.length) {
+        throw new Error(`empty project version`)
+    }
+    return {projectName, projectVersion};
+}
+
+module.exports = {cleanTag, parseTag};
+
+
+/***/ }),
+
 /***/ 351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -2688,34 +2723,6 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 382:
-/***/ ((module) => {
-
-function parseTag(tag) {
-    const refsTags = 'refs/tags/';
-    if (tag.startsWith(refsTags)) {
-        tag = tag.substring(refsTags.length);
-    }
-    const slashIdx = tag.indexOf('/');
-    if (slashIdx === -1) {
-        throw new Error(`no '/' in tag`);
-    }
-    const projectName = tag.substring(0, slashIdx);
-    const projectVersion = tag.substring(slashIdx + 1);
-    if (!projectName.length) {
-        throw new Error(`empty project name`)
-    }
-    if (!projectVersion.length) {
-        throw new Error(`empty project version`)
-    }
-    return {projectName, projectVersion};
-}
-
-module.exports = {parseTag};
-
-
-/***/ }),
-
 /***/ 491:
 /***/ ((module) => {
 
@@ -2846,15 +2853,18 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(186);
-const {parseTag} = __nccwpck_require__(382);
+const {cleanTag, parseTag} = __nccwpck_require__(909);
 
 try {
-    const tag = core.getInput('tag');
+    const inputTag = core.getInput('tag');
+    const {ref, tag} = cleanTag(inputTag);
     const {projectName, projectVersion} = parseTag(tag);
+    core.setOutput('tag-name', tag);
+    core.setOutput('tag-ref', ref)
     core.setOutput('project-name', projectName);
     core.setOutput('project-version', projectVersion);
 } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(`invalid tag: ${error.message}`);
 }
 
 })();

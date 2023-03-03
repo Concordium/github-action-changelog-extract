@@ -30,8 +30,12 @@ jobs:
         id: as-ref
         with:
           tag: refs/tags/ref-name/ref-version
-      - name: Verify in the same workflow
+      - name: Use outputs in the same job
         run: |
+          [ "${{steps.as-tag.outputs.tag-name}}" = "tag-name/tag-version" ]
+          [ "${{steps.as-ref.outputs.tag-name}}" = "ref-name/ref-version" ]
+          [ "${{steps.as-tag.outputs.tag-ref}}" = "refs/tags/tag-name/tag-version" ]
+          [ "${{steps.as-ref.outputs.tag-ref}}" = "refs/tags/ref-name/ref-version" ]
           [ "${{steps.as-tag.outputs.project-name}}" = "tag-name" ]
           [ "${{steps.as-ref.outputs.project-name}}" = "ref-name" ]
           [ "${{steps.as-tag.outputs.project-version}}" = "tag-version" ]
@@ -40,7 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: use
     steps:
-      - run: |
+      - name: Use outputs in another job
+        run: |
           [ "${{needs.use.outputs.as-tag-name}}" = "tag-name" ]
           [ "${{needs.use.outputs.as-ref-name}}" = "ref-name" ]
           [ "${{needs.use.outputs.as-tag-version}}" = "tag-version" ]
