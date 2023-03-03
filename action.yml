@@ -1,14 +1,14 @@
-name: 'ParseTag'
-description: 'Parse a tag'
+name: "parse-tag"
+description: "Parse a tag"
 inputs:
   tag:
-    description: 'The tag. Defaults to github.GITHUB_REF.'
+    description: "The tag."
     required: false
 outputs:
   project-name:
-    description: 'The name of the project.'
+    description: "The name of the project."
   project-version:
-    description: 'The version of the project.'
+    description: "The version of the project."
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"

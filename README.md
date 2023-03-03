@@ -1,116 +1,55 @@
-# Create a JavaScript Action
+# `concordium/parse-tag`
 
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+The only input of the action is the string `tag` which is expected to match the format
+`[refs/tags/]<project-name>/<project-version>`.
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+The action parses the tag into these components and outputs `<project-name>` and `<project-version>`
+as fields of the same names.
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.
+## Example workflow
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-Install the dependencies
-
-```bash
-npm install
-```
-
-Run the tests :heavy_check_mark:
-
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
-
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
-
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
-
-Run prepare
-
-```bash
-npm run prepare
-```
-
-Since the packaged index.js is run from the dist folder.
-
-```bash
-git add dist
-```
-
-## Create a release branch
-
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checkin to the v1 release branch
-
-```bash
-git checkout -b v1
-git commit -a -m "v1 release"
-```
-
-```bash
-git push origin v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Usage
-
-You can now consume the action by referencing the v1 branch
+The following example workflow illustrates how to run the action against the git ref `github.GITHUB_REF`
+that the workflow is invoked with.
+As this ref must be a tag, the workflow is invoked manually to allow the user to select the appropriate tag.
 
 ```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
+name: Example workflow
+on:
+  workflow_dispatch: # workflow is invoked manually
+
+jobs:
+  my_job:
+    runs-on: ubuntu-latest
+    outputs:
+      project-name: "${{steps.my_step.outputs.project-name}}"
+      project-version: "${{steps.my_step.outputs.project-name}}"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: concordium/parse-tag@v1
+        id: my_step
+        with:
+          tag: "${{github.GITHUB_REF}}"
+      - run: |
+          echo "project-name: ${{steps.my_step.outputs.project-name}}"
+          echo "project-version: ${{steps.my_step.outputs.project-version}}"
+  my_dependent_job:
+    runs-on: ubuntu-latest
+    needs: my_job
+    steps:
+      - run: |
+          echo "project-name: ${{needs.my_job.outputs.project-name}}"
+          echo "project-version: ${{needs.my_job.outputs.project-version}}"
 ```
 
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+The parsed tag components are now available in subsequent steps of the job `my_job` as the template variables
+
+* `project-name`: `${{steps.my_step.outputs.project-name}}`
+* `project-version`: `${{steps.my_step.outputs.project-version}}`
+
+Since we declared the [`output`](https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs) block in `my_job`,
+the variables are also exposed to the dependent job `my_dependent_job`:
+
+* `project-name`: `${{needs.my_job.outputs.project-name}}`
+* `project-version`: `${{needs.my_job.outputs.project-version}}`
+
+See the [Test](./.github/workflows/test.yml) workflow for a use of the example in "action".
