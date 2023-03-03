@@ -47,4 +47,4 @@ jobs:
           [ "${{needs.use.outputs.as-tag-name}}" = "tag-name" ]
           [ "${{needs.use.outputs.as-ref-name}}" = "ref-name" ]
           [ "${{needs.use.outputs.as-tag-version}}" = "tag-version" ]
-          [ "${{needs.use.outputs.as-ref-version}}" = "ref-versio" ]
+          [ "${{needs.use.outputs.as-ref-version}}" = "ref-version" ]
