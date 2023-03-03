@@ -38,7 +38,7 @@ jobs:
           [ "${{steps.as-tag.outputs.project-name}}" = "tag-name" ]
           [ "${{steps.as-ref.outputs.project-name}}" = "ref-name" ]
           [ "${{steps.as-tag.outputs.project-version}}" = "tag-version" ]
-          [ "${{steps.as-ref.outputs.project-version}}" = "ref-versio" ]
+          [ "${{steps.as-ref.outputs.project-version}}" = "ref-version" ]
   verify:
     runs-on: ubuntu-latest
     needs: use
@@ -47,4 +47,4 @@ jobs:
           [ "${{needs.use.outputs.as-tag-name}}" = "tag-name" ]
           [ "${{needs.use.outputs.as-ref-name}}" = "ref-name" ]
           [ "${{needs.use.outputs.as-tag-version}}" = "tag-version" ]
-          [ "${{needs.use.outputs.as-ref-version}}" = "ref-version" ]
+          [ "${{needs.use.outputs.as-ref-version}}" = "ref-versio" ]
