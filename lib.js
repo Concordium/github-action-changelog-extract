@@ -1,6 +1,6 @@
 const sectionHeaderPattern = /^## \[(.*)]/;
 
-function extractSection(version, lines) {
+function extractSectionLines(version, lines) {
     // Find line index of the section of interest.
     const sectionLineIdx = lines.findIndex((line) => {
         const v = sectionHeaderPattern.exec(line);
@@ -9,17 +9,18 @@ function extractSection(version, lines) {
 
     // If a matching section was found, extract to end of file look for the line index of the next section in this slice.
     // Otherwise, leave the list of extracted lines empty.
-    let extractedLines = [];
-    if (sectionLineIdx >= 0) {
-        extractedLines = lines.slice(sectionLineIdx);
-        const nextSectionLineIdx = extractedLines.findIndex((line, idx) => idx > 0 && sectionHeaderPattern.test(line));
-        // If a subsequent section was found, extract the lines up to and excluding the next section.
-        if (nextSectionLineIdx >= 0) {
-            extractedLines = extractedLines.slice(0, nextSectionLineIdx);
-        }
+    if (sectionLineIdx < 0) {
+        return [];
     }
-    return extractedLines;
+
+    const sectionLines = lines.slice(sectionLineIdx);
+    const nextSectionLineIdx = sectionLines.findIndex((line, idx) => idx > 0 && sectionHeaderPattern.test(line));
+
+    // If a subsequent section was found, extract the lines up to and excluding the next section.
+    if (nextSectionLineIdx < 0) {
+        return sectionLines;
+    }
+    return sectionLines.slice(0, nextSectionLineIdx);
 }
 
-
-module.exports = {extractSection};
+module.exports = {extractSectionLines};
