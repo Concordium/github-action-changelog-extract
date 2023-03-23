@@ -21,32 +21,42 @@ jobs:
       as-tag-version: "${{steps.as-tag.outputs.project-version}}"
       as-ref-version: "${{steps.as-ref.outputs.project-version}}"
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-        id: as-tag
-        with:
-          tag: tag-name/tag-version
-      - uses: ./
-        id: as-ref
-        with:
-          tag: refs/tags/ref-name/ref-version
-      - name: Use outputs in the same job
+      - name: Checkout project
+        uses: actions/checkout@v3
+      - name: Write changelog file
         run: |
-          [ "${{steps.as-tag.outputs.tag-name}}" = "tag-name/tag-version" ]
-          [ "${{steps.as-ref.outputs.tag-name}}" = "ref-name/ref-version" ]
-          [ "${{steps.as-tag.outputs.tag-ref}}" = "refs/tags/tag-name/tag-version" ]
-          [ "${{steps.as-ref.outputs.tag-ref}}" = "refs/tags/ref-name/ref-version" ]
-          [ "${{steps.as-tag.outputs.project-name}}" = "tag-name" ]
-          [ "${{steps.as-ref.outputs.project-name}}" = "ref-name" ]
-          [ "${{steps.as-tag.outputs.project-version}}" = "tag-version" ]
-          [ "${{steps.as-ref.outputs.project-version}}" = "ref-version" ]
-  verify:
-    runs-on: ubuntu-latest
-    needs: use
-    steps:
-      - name: Use outputs in another job
+          cat <<EOF > changelog.md
+          # Changelog
+          
+          Bla blah
+          
+          ## [1.0] - first version
+          
+          All beginnings are hard. Forgive us.
+          
+          ## [2.0] - best version
+          
+          Much improvements. Very feature. Upgraded yesterday, never regrets.
+          
+          Much wow.
+          
+          ## [2.1] - approved version
+          
+          This version sucks. Don't upgrade. Stay on 2.0 without support forever.
+          EOF
+      - name: Extract changelog section
+        uses: ./
+        id: changelog
+        with:
+          file: changelog.md
+          version: "2.0"
+      - name: Access output, verifying that extraction section is correct and trimmed
         run: |
-          [ "${{needs.use.outputs.as-tag-name}}" = "tag-name" ]
-          [ "${{needs.use.outputs.as-ref-name}}" = "ref-name" ]
-          [ "${{needs.use.outputs.as-tag-version}}" = "tag-version" ]
-          [ "${{needs.use.outputs.as-ref-version}}" = "ref-version" ]
+          section="$(
+          cat <<EOF
+          Much improvements. Very feature. Upgraded yesterday, never regrets.
+
+          Much wow.
+          EOF
+          )"
+          [ "${{steps.changelog.outputs.section}}" = "${section}" ]

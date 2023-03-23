@@ -19,7 +19,7 @@ function extractSectionLines(version, lines) {
         return [];
     }
 
-    const sectionLines = lines.slice(sectionLineIdx);
+    const sectionLines = lines.slice(sectionLineIdx + 1);
     const nextSectionLineIdx = sectionLines.findIndex((line, idx) => idx > 0 && sectionHeaderPattern.test(line));
 
     // If a subsequent section was found, extract the lines up to and excluding the next section.
@@ -2869,7 +2869,7 @@ let extractedLines = extractSectionLines(version, lines);
 const sectionText = extractedLines.join(EOL).trim();
 
 try {
-    setOutput('changelog', sectionText);
+    setOutput('section', sectionText);
 } catch (e) {
     error(e)
 }

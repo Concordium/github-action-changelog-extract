@@ -17,7 +17,7 @@ let extractedLines = extractSectionLines(version, lines);
 const sectionText = extractedLines.join(EOL).trim();
 
 try {
-    setOutput('changelog', sectionText);
+    setOutput('section', sectionText);
 } catch (e) {
     error(e)
 }

@@ -9,8 +9,8 @@ inputs:
     description: "The package version describing what section to extract."
     required: true
 outputs:
-  changelog:
+  section:
     description: "The extracted changelog section."
 runs:
   using: "node16"
-  main: "./index.js"
+  main: "./dist/index.js"
