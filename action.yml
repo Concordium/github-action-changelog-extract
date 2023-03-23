@@ -1,14 +1,16 @@
-name: "parse-tag"
-description: "Parse a tag"
+name: "changelog-extract"
+description: "Extract the section of a changelog corresponding to a given version."
 inputs:
-  tag:
-    description: "The tag."
-    required: false
+  file:
+    description: "The changelog file."
+    required: true
+    default: "CHANGELOG.md"
+  version:
+    description: "The package version describing what section to extract."
+    required: true
 outputs:
-  project-name:
-    description: "The name of the project."
-  project-version:
-    description: "The version of the project."
+  changelog:
+    description: "The extracted changelog section."
 runs:
   using: "node16"
-  main: "dist/index.js"
+  main: "./index.js"

@@ -1,28 +1,25 @@
-function cleanTag(tag) {
-    const refsTags = 'refs/tags/';
-    if (tag.startsWith(refsTags)) {
-        tag = tag.substring(refsTags.length);
-        if (!tag.length) {
-            throw new Error('empty tag name');
+const sectionHeaderPattern = /^## \[(.*)]/;
+
+function extractSection(version, lines) {
+    // Find line index of the section of interest.
+    const sectionLineIdx = lines.findIndex((line) => {
+        const v = sectionHeaderPattern.exec(line);
+        return v && version.startsWith(v[1]);
+    });
+
+    // If a matching section was found, extract to end of file look for the line index of the next section in this slice.
+    // Otherwise, leave the list of extracted lines empty.
+    let extractedLines = [];
+    if (sectionLineIdx >= 0) {
+        extractedLines = lines.slice(sectionLineIdx);
+        const nextSectionLineIdx = extractedLines.findIndex((line, idx) => idx > 0 && sectionHeaderPattern.test(line));
+        // If a subsequent section was found, extract the lines up to and excluding the next section.
+        if (nextSectionLineIdx >= 0) {
+            extractedLines = extractedLines.slice(0, nextSectionLineIdx);
         }
     }
-    return {ref: refsTags+tag, tag};
+    return extractedLines;
 }
 
-function parseTag(tag) {
-    const slashIdx = tag.indexOf('/');
-    if (slashIdx === -1) {
-        throw new Error(`no '/' in tag`);
-    }
-    const projectName = tag.substring(0, slashIdx);
-    const projectVersion = tag.substring(slashIdx + 1);
-    if (!projectName.length) {
-        throw new Error(`empty project name`)
-    }
-    if (!projectVersion.length) {
-        throw new Error(`empty project version`)
-    }
-    return {projectName, projectVersion};
-}
 
-module.exports = {cleanTag, parseTag};
+module.exports = {extractSection};
