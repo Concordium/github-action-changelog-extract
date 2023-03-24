@@ -20,9 +20,19 @@ test(`only matching section with one line contents`, () => {
     expect(extractSectionLines('1.1', contents)).toEqual(['foo']);
 });
 
-test(`only matching section with suffix and two line contents`, () => {
-    const contents = ['## [1.1] - suffix', 'foo', 'bar'];
-    expect(extractSectionLines('1.1', contents)).toEqual(['foo', 'bar']);
+test(`match section by version prefix`, () => {
+    const contents = ['## [1.1]', 'foo'];
+    expect(extractSectionLines('1.1-rc28', contents)).toEqual(['foo']);
+});
+
+test(`match section with header suffix`, () => {
+    const contents = ['## [1.1] - suffix', 'foo'];
+    expect(extractSectionLines('1.1', contents)).toEqual(['foo']);
+});
+
+test(`only matching section with multiline contents`, () => {
+    const contents = ['## [1.1]', 'foo', '### Changes', 'bar'];
+    expect(extractSectionLines('1.1', contents)).toEqual(['foo', '### Changes', 'bar']);
 });
 
 test(`matching section follows non-matching section`, () => {
