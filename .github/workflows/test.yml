@@ -8,7 +8,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: npm ci
     - run: npm test
 
@@ -22,7 +22,7 @@ jobs:
       as-ref-version: "${{steps.as-ref.outputs.project-version}}"
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Write changelog file
         run: |
           cat <<EOF > changelog.md
